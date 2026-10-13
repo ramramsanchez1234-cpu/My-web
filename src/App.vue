@@ -1,40 +1,55 @@
 <script setup>
 import { ref } from 'vue'
-import profileImage from './assets/profile-B-8nHaKx.jpg'
-import cert1 from './assets/certificate1-BnDEoyBk.jpg'
-import cert2 from './assets/certificate2-BJrju29l.jpg'
-import cert3 from './assets/certificate3-B6DvxRGO.jpg'
+import HomePage from './pages/HomePage.vue'
+import ProfilePage from './pages/ProfilePage.vue'
+import profileImage from '../assets/profile-B-8nHaKx.jpg'
+import cert1 from '../assets/certificate1-BnDEoyBk.jpg'
+import cert2 from '../assets/certificate2-BJrju29l.jpg'
+import cert3 from '../assets/certificate3-B6DvxRGO.jpg'
 
 const currentView = ref('home')
-const contactOpen = ref(false)
+const contactTopOpen = ref(false)
+const contactBottomOpen = ref(false)
 const selectedCertificate = ref(null)
 
 const certificates = [
   {
-    title: 'BSIT Fundamentals',
+    title: 'Computer Hardware Basics',
     issuer: 'CTE / Training Center',
     year: '2023',
     image: cert1,
   },
   {
-    title: 'Web Development',
+    title: 'Operating Systems Basics',
     issuer: 'ICT Academy',
     year: '2024',
     image: cert2,
   },
   {
-    title: 'Computer Programming',
+    title: 'Introduction to Cybersecurity',
     issuer: 'IT Skills Program',
     year: '2025',
     image: cert3,
   },
 ]
 
+const emailSubject = 'Portfolio Inquiry'
+const emailBody =
+  'Hello Ramram,\n\nI would like to get in touch with you regarding your portfolio.\n\nThank you.'
+
 const profile = {
-  name: 'Sanchez',
+  name: 'Ramram C. Sanchez',
   course: 'BSIT 3rd Year',
   email: 'ramramsanchez1234@gmail.com',
-  facebook: 'https://www.facebook.com/ramramsanchez1234',
+  facebook: 'https://www.facebook.com/ramramsanchez1234/',
+  gmailComposeUrl: `https://mail.google.com/mail/?${new URLSearchParams({
+    view: 'cm',
+    fs: '1',
+    to: 'ramramsanchez1234@gmail.com',
+    su: emailSubject,
+    body: emailBody,
+  })}`,
+  mailtoUrl: `mailto:ramramsanchez1234@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`,
 }
 
 const viewProfile = () => {
@@ -45,8 +60,20 @@ const backHome = () => {
   currentView.value = 'home'
 }
 
-const toggleContactMenu = () => {
-  contactOpen.value = !contactOpen.value
+const toggleTopContactMenu = () => {
+  contactTopOpen.value = !contactTopOpen.value
+
+  if (contactTopOpen.value) {
+    contactBottomOpen.value = false
+  }
+}
+
+const toggleBottomContactMenu = () => {
+  contactBottomOpen.value = !contactBottomOpen.value
+
+  if (contactBottomOpen.value) {
+    contactTopOpen.value = false
+  }
 }
 
 const openCertificate = (certificate) => {
@@ -62,11 +89,7 @@ const closeCertificate = () => {
   <div class="page-shell">
     <header class="topbar">
       <button class="brand" @click="viewProfile" aria-label="Open profile">
-        <div class="brand-mark">
-          <span class="saturn-core"></span>
-          <span class="orbit orbit-one"></span>
-          <span class="orbit orbit-two"></span>
-        </div>
+        <img :src="profileImage" alt="Profile" class="brand-photo" />
         <div class="brand-text">
           <span class="brand-name">{{ profile.name }}</span>
           <span class="brand-role">{{ profile.course }}</span>
@@ -75,83 +98,38 @@ const closeCertificate = () => {
 
       <div class="top-actions">
         <div class="contact-wrap">
-          <button class="contact-toggle" @click="toggleContactMenu">Contact Me</button>
-          <div v-if="contactOpen" class="contact-menu">
-            <a :href="`mailto:${profile.email}`">Email</a>
+          <button class="contact-toggle" @click="toggleTopContactMenu">Contact Me</button>
+          <div v-if="contactTopOpen" class="contact-menu">
+            <a :href="profile.gmailComposeUrl" target="_blank" rel="noopener noreferrer">Email with Gmail</a>
+            <a :href="profile.mailtoUrl">Other email app</a>
             <a :href="profile.facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
           </div>
         </div>
+
+        <nav class="nav-links" aria-label="Main navigation">
+          <button class="nav-link" @click="viewProfile">About Me</button>
+        </nav>
       </div>
     </header>
 
     <main>
-      <section v-if="currentView === 'home'" class="hero">
-        <div class="hero-content">
-          <p class="eyebrow">Portfolio</p>
-          <h1>Hi, I’m {{ profile.name }}</h1>
-          <h2>{{ profile.course }}</h2>
-          <p class="intro">
-            I am a student focused on information technology, programming, and digital solutions.
-            I enjoy learning, building ideas, and creating meaningful work through technology.
-          </p>
-          <div class="hero-actions">
-            <button class="primary-btn" @click="viewProfile">View Profile</button>
-            <button class="secondary-btn" @click="toggleContactMenu">Contact Me</button>
-          </div>
-        </div>
+      <HomePage
+        v-if="currentView === 'home'"
+        :profile="profile"
+        :profile-image="profileImage"
+        :contact-open="contactBottomOpen"
+        @open-profile="viewProfile"
+        @toggle-contact="toggleBottomContactMenu"
+      />
 
-        <div class="hero-visual">
-          <div class="photo-card">
-            <img :src="profileImage" :alt="profile.name" class="profile-photo" />
-          </div>
-        </div>
-      </section>
-
-      <section v-else class="profile-page">
-        <button class="back-btn" @click="backHome">← Back Home</button>
-
-        <div class="profile-header">
-          <div class="profile-photo-box">
-            <img :src="profileImage" :alt="profile.name" class="profile-image-large" />
-          </div>
-
-          <div class="profile-info">
-            <p class="section-tag">About Me</p>
-            <h3>{{ profile.name }}</h3>
-            <p class="role-line">{{ profile.course }}</p>
-            <p>
-              A BSIT student passionate about learning new technologies, creating digital experiences,
-              and developing both technical and creative skills for future opportunities.
-            </p>
-            <div class="info-list">
-              <div><strong>Email:</strong> <a :href="`mailto:${profile.email}`">{{ profile.email }}</a></div>
-              <div>
-                <strong>Facebook:</strong>
-                <a :href="profile.facebook" target="_blank" rel="noopener noreferrer">View profile</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="certificate-section">
-          <div class="section-title-row">
-            <p class="section-tag">Certificates</p>
-            <h4>My Achievements</h4>
-          </div>
-
-          <div class="certificate-grid">
-            <article v-for="(certificate, index) in certificates" :key="index" class="certificate-card">
-              <button class="certificate-button" @click="openCertificate(certificate)">
-                <img :src="certificate.image" :alt="certificate.title" />
-              </button>
-              <div class="certificate-caption">
-                <h5>{{ certificate.title }}</h5>
-                <span>{{ certificate.issuer }} • {{ certificate.year }}</span>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
+      <ProfilePage
+        v-else
+        :profile="profile"
+        :profile-image="profileImage"
+        :certificates="certificates"
+        @back-home="backHome"
+        @open-certificate="openCertificate"
+      />
     </main>
 
     <div v-if="selectedCertificate" class="modal-overlay" @click="closeCertificate">
